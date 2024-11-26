@@ -52,7 +52,7 @@ app.post('/generate-recipe', async (req, res) => {
         const completion = await openai.beta.chat.completions.parse({
             model: "gpt-4o-2024-08-06",
             messages: [
-              { role: "system", content: "Create a random recipe with lots of cheese for a Thanksgiving food" },
+              { role: "system", content: "Create a random recipe for a Thanksgiving food" },
             ],
             response_format: zodResponseFormat(GeneratedRecipe, "event"),
         });
