@@ -1,34 +1,96 @@
-const cool = require('cool-ascii-faces')
-const express = require('express')
-const path = require('path')
+import express from 'express';
+import twig from 'twig';
+import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
+import pkg from 'pg'; // Import pg as a default export
+import dotenv from 'dotenv';
 
-const PORT = process.env.PORT || 5001
+// Load environment variables from .env file
+dotenv.config();
 
-const { Pool } = require('pg')
+const { Pool } = pkg; // Destructure Pool from pg
+
+const { renderFile } = twig;
+
+const app = express();
+const PORT = 3000;
+
+// Set Twig as the templating engine
+app.engine('twig', renderFile);
+app.set('view engine', 'twig');
+app.set('views', './views');
+
+const openai = new OpenAI({
+    project: "proj_LSyw0MpNxcSQx9WjNIKJozQq",
+    api_key: process.env.OPENAI_API_KEY // Retrieve API key from environment variable
+});
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-})
+    connectionString: process.env.DATABASE_URL,
+    ssl: {rejectUnauthorized: false}
+});
 
-express()
-  .use(express.static(path.join(__dirname, 'public')))
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
-  .get('/cool', (req, res) => res.send(cool()))
-  .get('/db', async (req, res) => {
+const GeneratedRecipe = z.object({
+  name: z.string(),
+  description: z.string(),
+  ingredients: z.array(z.string()),
+  instructions: z.array(z.string()),
+  image: z.string()
+});
+
+// Define the "/" route
+app.get('/', (req, res) => {
+  res.render('index', { message: 'Recipe Generator' });
+});
+
+// Define the "generate-recipe" route
+app.post('/generate-recipe', async (req, res) => {
+    let recipe;
+
     try {
-      const client = await pool.connect();
-      const result = await client.query('SELECT * FROM test_table');
-      const results = { 'results': (result) ? result.rows : null};
-      res.render('pages/db', results );
-      client.release();
-    } catch (err) {
-      console.error(err);
-      res.send("Error " + err);
+        const completion = await openai.beta.chat.completions.parse({
+            model: "gpt-4o-2024-08-06",
+            messages: [
+              { role: "system", content: "Create a random recipe with lots of cheese for a Thanksgiving food" },
+            ],
+            response_format: zodResponseFormat(GeneratedRecipe, "event"),
+        });
+          
+        recipe = completion.choices[0].message.parsed;
+        const name = recipe.name;
+
+        const image = await openai.images.generate({ model: "dall-e-3", prompt: name });
+        recipe.image = image.data[0].url;
+
+        console.log(recipe);
+
+        // Insert the recipe into the PostgreSQL database
+        const query = `
+            INSERT INTO recipes (name, description, ingredients, instructions, image)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id;
+        `;
+        const values = [
+            recipe.name,
+            recipe.description,
+            JSON.stringify(recipe.ingredients), // Store array as JSON
+            JSON.stringify(recipe.instructions), // Store array as JSON
+            recipe.image
+        ];
+
+        const result = await pool.query(query, values);
+        console.log(`Recipe inserted with ID: ${result.rows[0].id}`);
+    } catch (error) {
+        console.error("Error generating recipe or saving to database:", error);
+        return res.status(500).json({ error: "Failed to generate recipe." });
     }
-  })
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+
+    // Return JSON data
+    res.json(recipe);
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
