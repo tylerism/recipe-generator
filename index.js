@@ -14,7 +14,7 @@ const { Pool } = pkg; // Destructure Pool from pg
 const { renderFile } = twig;
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 5001
 
 // Set Twig as the templating engine
 app.engine('twig', renderFile);
