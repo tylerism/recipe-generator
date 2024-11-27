@@ -1,0 +1,262 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fefefe;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #ff6347;
+    color: white;
+    padding: 10px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar .site-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.navbar .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar .nav-links li a {
+    color: white;
+    font-size: 1rem;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+}
+
+.navbar .nav-links li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Header Styles */
+header {
+    background-color: #ff6347;
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin: 0 0 10px;
+}
+
+header p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Main Content */
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Button Styles */
+button {
+    display: inline-block;
+    background-color: #ff6347;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background-color: #e5533d;
+}
+
+/* Loading Container */
+#loading-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#loading-bar {
+    width: 0;
+    height: 20px;
+    background-color: #4caf50;
+    margin: 10px auto;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+#loading-text {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Recipe List Styles */
+.recipe-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.recipe-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.recipe-item:hover {
+    transform: scale(1.02);
+}
+
+.recipe-thumbnail {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
+}
+
+.recipe-details {
+    padding: 10px;
+}
+
+.recipe-name {
+    font-size: 1.2rem;
+    color: #ff6347;
+    margin: 10px 0 5px;
+    text-transform: capitalize;
+}
+
+.recipe-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Recipe Details Page */
+.recipe-details-page {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-detail-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.recipe-details-page h2 {
+    color: #ff6347;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.recipe-details-page ul,
+.recipe-details-page ol {
+    margin: 0 0 20px;
+    padding-left: 20px;
+}
+
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+/* Form Styles */
+.recipe-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.form-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #ff6347;
+    outline: none;
+    box-shadow: 0 4px 8px rgba(255, 99, 71, 0.2);
+}
+
+.form-button {
+    background-color: #ff6347;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.form-button:hover {
+    background-color: #e5533d;
+    transform: scale(1.05);
+}
+
+.form-button:active {
+    background-color: #cc4836;
+    transform: scale(0.98);
+}
+
