@@ -1,0 +1,29 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{ recipe.name }} - The Flavor Fix{% endblock %}
+
+{% block header %}
+    {{ recipe.name }}
+{% endblock %}
+
+{% block header_description %}
+    <p>{{ recipe.description }}</p>
+{% endblock %}
+
+{% block content %}
+    <div class="recipe-details-page">
+        <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="recipe-detail-image">
+        <h2>Ingredients</h2>
+        <ul>
+            {% for ingredient in recipe.ingredients %}
+                <li>{{ ingredient }}</li>
+            {% endfor %}
+        </ul>
+        <h2>Instructions</h2>
+        <ol>
+            {% for instruction in recipe.instructions %}
+                <li>{{ instruction }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+{% endblock %}

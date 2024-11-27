@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Flavor Fix{% endblock %}</title>
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Link to external stylesheet -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="site-title">The Flavor Fix</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/recipes">Recipes</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>{% block header %}Welcome to The Flavor Fix{% endblock %}</h1>
+        {% block header_description %}<p>Your source for AI-generated culinary inspiration.</p>{% endblock %}
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>Powered by AI | © 2024 The Flavor Fix</p>
+    </footer>
+
+    <script>
+        const funnyMessages = [
+            "Whisking the data...",
+            "Adding a pinch of AI magic...",
+            "Sautéing some ideas...",
+            "Grating some cheesy jokes...",
+            "Simmering creativity...",
+            "Plating the recipe...",
+            "Garnishing with brilliance..."
+        ];
+
+        async function showLoading() {
+            const loadingContainer = document.getElementById('loading-container');
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingText = document.getElementById('loading-text');
+
+            loadingContainer.style.display = 'block';
+            loadingBar.style.width = '0';
+            loadingText.innerText = funnyMessages[0];
+
+            let step = 0;
+            let isComplete = false;
+
+            // Update loading messages and progress bar
+            const updateMessage = () => {
+                if (step < funnyMessages.length - 1) {
+                    step++;
+                    loadingText.innerText = funnyMessages[step];
+                    loadingBar.style.width = `${(step / (funnyMessages.length - 1)) * 100}%`;
+
+                    // Continue updating unless loading is complete
+                    if (!isComplete) {
+                        const randomInterval = Math.random() * 2000 + 1000; // Random interval (1-3 seconds)
+                        setTimeout(updateMessage, randomInterval);
+                    }
+                }
+            };
+
+            updateMessage();
+
+            // Return a function to mark loading as complete
+            return () => {
+                isComplete = true;
+                loadingContainer.style.display = 'none';
+            };
+        }
+
+        document.getElementById('recipe-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent form submission
+
+            const recipePrompt = document.getElementById('recipe-prompt').value;
+            const recipeContainer = document.getElementById('recipe-container');
+            recipeContainer.innerHTML = ''; // Clear previous recipe
+
+            const stopLoading = await showLoading();
+
+            axios.post('/generate-recipe', { prompt: recipePrompt })
+                .then(response => {
+                    const recipe = response.data;
+                    recipeContainer.innerHTML = `
+                        <img src="${recipe.image}" alt="Recipe Image" class="recipe-image"/>
+                        <h2 class="recipe-title">${recipe.name}</h2>
+                        <p class="recipe-description">${recipe.description}</p>
+                        <h3>Ingredients:</h3>
+                        <ul>${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}</ul>
+                        <h3>Steps:</h3>
+                        <ol>${recipe.instructions.map(step => `<li>${step}</li>`).join('')}</ol>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error generating recipe:', error);
+                    recipeContainer.innerHTML = `<p>Failed to generate recipe. Please try again later.</p>`;
+                })
+                .finally(() => {
+                    stopLoading(); // Stop loading when Axios call completes
+                });
+        });
+    </script>
+</body>
+</html>

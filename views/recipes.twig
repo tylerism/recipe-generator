@@ -1,0 +1,27 @@
+{% extends "layout.twig" %}
+
+{% block title %}All Recipes - The Flavor Fix{% endblock %}
+
+{% block header %}
+    All Recipes
+{% endblock %}
+
+{% block header_description %}
+    <p>Explore our collection of delicious AI-generated recipes!</p>
+{% endblock %}
+
+{% block content %}
+    <div class="recipe-list">
+        {% for recipe in recipes %}
+            <div class="recipe-item">
+                <a href="/recipes/{{ recipe.slug }}" class="recipe-link">
+                    <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="recipe-thumbnail">
+                    <div class="recipe-details">
+                        <h2 class="recipe-name">{{ recipe.name }}</h2>
+                        <p class="recipe-description">{{ recipe.description }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
