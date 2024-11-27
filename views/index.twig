@@ -3,39 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Generator</title>
+    <title>The Flavor Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* Style for the loading bar container */
-        #loading-container {
-            display: none;
-            margin: 20px 0;
-            text-align: center;
-        }
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fefefe;
+    color: #333;
+    line-height: 1.6;
+}
 
-        #loading-bar {
-            width: 0;
-            height: 20px;
-            background-color: #4caf50;
-            margin: 10px auto;
-            transition: width 0.3s ease;
-        }
+/* Navbar Styles */
+.navbar {
+    background-color: #ff6347;
+    color: white;
+    padding: 10px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-        #loading-text {
-            margin-top: 10px;
-            font-size: 14px;
-        }
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar .site-title {
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.navbar .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 15px;
+}
+
+.navbar .nav-links li {
+    display: inline;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease;
+}
+
+.navbar .nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+/* Header Styles */
+header {
+    background-color: #ff6347;
+    color: white;
+    padding: 20px 10px;
+    text-align: center;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+header p {
+    margin: 10px 0 0;
+    font-size: 1rem;
+}
+
+/* Main Content */
+main {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+button {
+    display: inline-block;
+    background-color: #ff6347;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e5533d;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
     </style>
 </head>
 <body>
-    <h1>{{ message }}</h1>
-    <button id="generate-recipe-btn">Generate Recipe</button>
-    <div id="loading-container">
-        <div id="loading-bar"></div>
-        <div id="loading-text">Starting AI engines...</div>
-    </div>
-    <div id="recipe-container"></div>
-
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="site-title">The Flavor Fix</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/recipes">Recipes</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>{{ message }}</h1>
+        <p>Click the button below to generate a delicious recipe using AI!</p>
+    </header>
+    <main>
+        <button id="generate-recipe-btn">Generate Recipe</button>
+        <div id="loading-container">
+            <div id="loading-bar"></div>
+            <div id="loading-text">Starting AI engines...</div>
+        </div>
+        <div id="recipe-container"></div>
+    </main>
+    <footer>
+        <p>Powered by AI | © 2024 The Flavor Fix</p>
+    </footer>
     <script>
         const funnyMessages = [
             "Whisking the data...",
@@ -101,9 +211,9 @@
                     console.log(recipe);
                     const container = document.getElementById('recipe-container');
                     container.innerHTML = `
-                        <img src="${recipe.image}" alt="Recipe Image"/>
-                        <h2>${recipe.name}</h2>
-                        <p>${recipe.description}</p>
+                        <img src="${recipe.image}" alt="Recipe Image" class="recipe-image"/>
+                        <h2 class="recipe-title">${recipe.name}</h2>
+                        <p class="recipe-description">${recipe.description}</p>
                         <h3>Ingredients:</h3>
                         <ul>${recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}</ul>
                         <h3>Steps:</h3>
