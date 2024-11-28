@@ -39,113 +39,69 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? {rejectUnauthorized: false} : false
 });
 
-const GeneratedRecipe = z.object({
-  name: z.string(),
-  description: z.string(),
-  ingredients: z.array(z.string()),
-  instructions: z.array(z.string()),
-  image: z.string()
+const GeneratedQuestion = z.object({
+  question: z.string(),
+  numerical_answer: z.string(),
+  extra_answer_information: z.string()
 });
 
 // Define the "/" route
 app.get('/', (req, res) => {
-  res.render('index', { message: 'Recipe Generator' });
+  res.render('question', { message: 'Question Generator' });
 });
 
 // Define the "generate-recipe" route
-app.post('/generate-recipe', async (req, res) => {
+app.get('/generate-question', async (req, res) => {
 
-    const { prompt } = req.body;
-
-    if (!prompt || prompt.trim() === "") {
-        return res.status(400).json({ error: "Prompt is required." });
-    }
-
-    let recipe;
+    let question;
 
     try {
         const completion = await openai.beta.chat.completions.parse({
             model: "gpt-4o-2024-08-06",
             messages: [
-                { role: "system", content: "You are a recipe creation assistant." },
-                { role: "user", content: prompt }
+                { role: "system", content: "You are a question generator. When I ask you give me questions that have numerical answer. The answer can be numerical such as a specific number or a percentage. Do not repeat questions. The questions should be difficult questions that people would not know the exact answer to." },
+                { role: "user", content: "Give me a new question" }
             ],
-            response_format: zodResponseFormat(GeneratedRecipe, "recipe"),
+            response_format: zodResponseFormat(GeneratedQuestion, "question"),
         });
           
-        recipe = completion.choices[0].message.parsed;
-        const name = recipe.name;
-        const slug = slugify(recipe.name);
-
-        const image = await openai.images.generate({ model: "dall-e-3", prompt: name });
-        recipe.image = image.data[0].url;
-
-        console.log(recipe);
+        question = completion.choices[0].message.parsed;
+       
 
         // Insert the recipe into the PostgreSQL database
         const query = `
-            INSERT INTO recipes (name, description, ingredients, instructions, image, slug)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO questions (question_text, answer_text)
+            VALUES ($1, $2)
             RETURNING id;
         `;
         const values = [
-            recipe.name,
-            recipe.description,
-            JSON.stringify(recipe.ingredients), // Store array as JSON
-            JSON.stringify(recipe.instructions), // Store array as JSON
-            recipe.image,
-            slug
+            question.question,
+            question.numerical_answer,
         ];
 
         const result = await pool.query(query, values);
-        console.log(`Recipe inserted with ID: ${result.rows[0].id}`);
+        console.log(`Question inserted with ID: ${result.rows[0].id}`);
     } catch (error) {
-        console.error("Error generating recipe or saving to database:", error);
-        return res.status(500).json({ error: "Failed to generate recipe." });
+        console.error("Error generating question or saving to database:", error);
+        return res.status(500).json({ error: "Failed to generate question." });
     }
 
     // Return JSON data
-    res.json(recipe);
+    res.json(question);
 });
 
-app.get('/recipes', async (req, res) => {
+app.get('/questions', async (req, res) => {
   try {
-      const query = 'SELECT name, description, image, slug FROM recipes ORDER BY id DESC';
+      const query = 'SELECT question, answer ORDER BY id DESC';
       const result = await pool.query(query);
 
-      // Pass recipes to the Twig template
-      res.render('recipes', { recipes: result.rows });
+      // Pass questions to the Twig template
+      res.render('questions', { recipes: result.rows });
   } catch (error) {
-      console.error('Error retrieving recipes:', error);
-      res.status(500).send('Failed to retrieve recipes.');
+      console.error('Error retrieving questions:', error);
+      res.status(500).send('Failed to retrieve questions.');
   }
 });
-
-app.get('/recipes/:slug', async (req, res) => {
-  const { slug } = req.params;
-
-  try {
-      // Query the database for the recipe with the given slug
-      const query = `
-          SELECT name, description, ingredients, instructions, image
-          FROM recipes
-          WHERE slug = $1
-      `;
-      const result = await pool.query(query, [slug]);
-
-      if (result.rows.length === 0) {
-          return res.status(404).send('Recipe not found');
-      }
-
-      // Pass the recipe data to the Twig template
-      const recipe = result.rows[0];
-      res.render('recipe', { recipe });
-  } catch (error) {
-      console.error('Error fetching recipe:', error);
-      res.status(500).send('Internal server error');
-  }
-});
-
 
 // Start the server
 app.listen(PORT, () => {

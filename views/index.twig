@@ -1,23 +1,88 @@
-{% extends "layout.twig" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Question</title>
+    <style>
+        body {
+            background-color: #001f3f; /* Dark navy blue */
+            color: #ff69b4; /* Bright pink */
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
 
-{% block title %}Home - The Flavor Fix{% endblock %}
+        button {
+            background-color: #ff69b4;
+            color: #001f3f;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-{% block header %}
-    Recipe Generator
-{% endblock %}
+        button:hover {
+            background-color: #ff85c9;
+        }
 
-{% block header_description %}
-    <p>Enter your idea for a recipe and click the button below to generate it using AI!</p>
-{% endblock %}
+        #question-container {
+            margin-top: 50px;
+        }
 
-{% block content %}
-    <form id="recipe-form" class="recipe-form">
-        <input type="text" id="recipe-prompt" class="form-input" placeholder="E.g., 'A spicy vegetarian dish'" required>
-        <button type="submit" class="form-button">Generate Recipe</button>
-    </form>
-    <div id="loading-container">
-        <div id="loading-bar"></div>
-        <div id="loading-text">Starting AI engines...</div>
+        .hidden {
+            display: none;
+        }
+
+        #question-text, #answer-text {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="question-container">
+        <button id="generate-question-btn">Generate Question</button>
+        <div id="question-display" class="hidden">
+            <p id="question-text"></p>
+            <button id="reveal-answer-btn" class="hidden">Reveal Answer</button>
+            <p id="answer-text" class="hidden"></p>
+        </div>
     </div>
-    <div id="recipe-container"></div>
-{% endblock %}
+
+    <script>
+        document.getElementById('generate-question-btn').addEventListener('click', async function() {
+            try {
+                // Fetch the question JSON from the backend
+                const response = await fetch('/generate-question');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch question');
+                }
+                const data = await response.json();
+
+                // Display the question and reveal button
+                document.getElementById('question-text').textContent = data.question;
+                document.getElementById('question-display').classList.remove('hidden');
+                document.getElementById('reveal-answer-btn').classList.remove('hidden');
+
+                // Hide previous answer in case it's shown
+                document.getElementById('answer-text').classList.add('hidden');
+                document.getElementById('answer-text').textContent = '';
+
+            } catch (error) {
+                console.error('Error fetching question:', error);
+                alert('Failed to generate question. Please try again.');
+            }
+        });
+
+        document.getElementById('reveal-answer-btn').addEventListener('click', function() {
+            // Reveal the answer
+            const responseAnswer = "Answer in JSON from Backend";
+            document.getElementById('answer-text').classList.remove('hidden');
+            document.getElementById('answer-text').textContent = responseAnswer
+        });
+    </script>
+</body>
+</html>

@@ -260,3 +260,7 @@ footer {
     transform: scale(0.98);
 }
 
+.hidden {
+    display: none;
+}
+
