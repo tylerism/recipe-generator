@@ -17,6 +17,7 @@ const pool = new Pool({
 
 const openai = new OpenAI({
   api_key: process.env.OPENAI_API_KEY,
+  project: "proj_LSyw0MpNxcSQx9WjNIKJozQq",
 });
 
 const GeneratedRecipe = z.object({

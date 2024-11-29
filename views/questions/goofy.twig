@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toggle Goofy Questions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    .button-on {
+      background-color: green;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .button-off {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Toggle Goofy Questions</h1>
+  <button id="toggleButton" class="button-off">Goofy Questions: OFF</button>
+
+  <script>
+    // Select the button element
+    const toggleButton = document.getElementById('toggleButton');
+
+    // Function to update the button styling and text based on the feature flag state
+    function updateButton(state) {
+      if (state) {
+        toggleButton.textContent = 'Goofy Questions: ON';
+        toggleButton.className = 'button-on';
+      } else {
+        toggleButton.textContent = 'Goofy Questions: OFF';
+        toggleButton.className = 'button-off';
+      }
+    }
+
+    // Function to toggle the feature flag
+    async function toggleFeatureFlag() {
+      try {
+        const response = await fetch('/questions/goofy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to toggle feature flag');
+        }
+
+        const data = await response.json();
+        updateButton(data.value); // Update the button based on the new state
+      } catch (error) {
+        console.error('Error toggling feature flag:', error);
+        alert('Failed to toggle feature flag. Please try again.');
+      }
+    }
+
+    // Add an event listener to the button
+    toggleButton.addEventListener('click', toggleFeatureFlag);
+
+    // Initial fetch to set the button state on page load
+    async function fetchFeatureFlag() {
+      try {
+        const response = await fetch('/questions/goofy_questions');
+        if (!response.ok) {
+          throw new Error('Failed to fetch feature flag');
+        }
+
+        const data = await response.json();
+        updateButton(data.value);
+      } catch (error) {
+        console.error('Error fetching feature flag:', error);
+        alert('Failed to fetch feature flag state. Please refresh the page.');
+      }
+    }
+
+    // Fetch the initial state on page load
+    fetchFeatureFlag();
+  </script>
+</body>
+</html>

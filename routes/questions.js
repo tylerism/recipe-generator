@@ -16,6 +16,7 @@ const pool = new Pool({
 
 const openai = new OpenAI({
   api_key: process.env.OPENAI_API_KEY,
+  project: "proj_LSyw0MpNxcSQx9WjNIKJozQq",
 });
 
 const GeneratedQuestion = z.object({
@@ -39,13 +40,85 @@ router.get('/generate', (req, res) => {
   res.render('questions/generate', { message: 'Generate a new question' });
 });
 
+router.get('/goofy', (req, res) => {
+  res.render('questions/goofy', { message: 'GOOFY' });
+});
+
+router.get('/goofy_questions', async (req, res) => {
+  try {
+    // Query the database for the feature flag
+    const query = 'SELECT * FROM feature_flags WHERE name = $1';
+    const values = ['goofy_questions'];
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Feature flag not found' });
+    }
+
+    // Return the feature flag as JSON
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching feature flag:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/goofy', async (req, res) => {
+  try {
+    // Fetch the current value of the feature flag
+    const fetchQuery = 'SELECT value FROM feature_flags WHERE name = $1';
+    const { rows } = await pool.query(fetchQuery, ['goofy_questions']);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Feature flag not found' });
+    }
+
+    const currentValue = rows[0].value;
+
+    // Toggle the value
+    const newValue = !currentValue;
+
+    // Update the feature flag in the database
+    const updateQuery = 'UPDATE feature_flags SET value = $1 WHERE name = $2 RETURNING value';
+    const updateResult = await pool.query(updateQuery, [newValue, 'goofy_questions']);
+
+    // Return the updated value
+    res.json({ name: 'goofy_questions', value: updateResult.rows[0].value });
+  } catch (error) {
+    console.error('Error toggling feature flag:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.post('/generate', async (req, res) => {
   try {
+
+    const flag_query = 'SELECT * FROM feature_flags WHERE name = $1';
+    const flag_values = ['goofy_questions'];
+    const { rows } = await pool.query(flag_query, flag_values);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Feature flag not found' });
+    }
+
+    const feature_flag_value = rows[0].value
+
+    let message_content_system = ''
+    let message_content_user = ''
+    if (feature_flag_value) {
+      message_content_system = "Talk in a babies voice and all your questions are about farts"
+      message_content_user = "Give me a new question"
+    } else {
+      message_content_system = "You are a question generator. You are a question generator. When I ask you give me questions that have numerical answer. The answer can be numerical such as a specific number or a percentage. Do not repeat questions. The questions should be related to popular culture that people would not know the exact answer to."
+      message_content_user = "Give me a new question"
+    }
+    
+
     const completion = await openai.beta.chat.completions.parse({
       model: "gpt-4o-2024-08-06",
       messages: [
-        { role: "system", content: "You are a question generator..." },
-        { role: "user", content: "Give me a new question" },
+        { role: "system", content: message_content_system},
+        { role: "user", content: message_content_user },
       ],
       response_format: zodResponseFormat(GeneratedQuestion, "question"),
     });
@@ -61,6 +134,12 @@ router.post('/generate', async (req, res) => {
     const result = await pool.query(query, values);
 
     console.log(`Question inserted with ID: ${result.rows[0].id}`);
+
+    if (feature_flag_value) {
+      question.question = "If 2 average sized men were standing naked facing each other with their erect pensis's touching at the tips, How far in inches would their noses be from each other"
+      question.numerical_answer = "8 inches"
+      question.extra_answer_information = "In 2018 Brandon and Brett Bagwell set the world record for longest time touching penis tips while making eye contact. An astonishing 24 hours!"
+    }
     res.json(question);
   } catch (error) {
     console.error('Error generating question:', error);
