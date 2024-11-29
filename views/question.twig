@@ -9,15 +9,26 @@
             background-color: #001f3f; /* Dark navy blue */
             color: #ff69b4; /* Bright pink */
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
-            padding: 20px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .hero {
             font-size: 48px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+
+        #question-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
         }
 
         button {
@@ -28,21 +39,16 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            margin: 10px;
+            margin: 10px 0;
         }
 
         button:hover {
             background-color: #ff85c9;
         }
 
-        #question-container {
-            margin-top: 20px;
-        }
-
         .card {
             width: 300px;
             height: 200px;
-            margin: 20px auto;
             position: relative;
             perspective: 1000px;
             display: none; /* Initially hidden */
@@ -94,13 +100,33 @@
         .extra-info {
             font-size: 16px;
         }
+
+        #loading-spinner {
+            display: none; /* Initially hidden */
+            margin: 20px 0;
+            border: 4px solid #001f3f;
+            border-top: 4px solid #ff69b4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="hero">Fits and Fakers</div>
-
     <div id="question-container">
+        <div class="hero">Fits and Fakers</div>
         <button id="generate-question-btn">Generate Question</button>
+        <div id="loading-spinner"></div>
         <div id="question-display" class="card">
             <div class="card-inner">
                 <div class="card-front">
@@ -117,7 +143,14 @@
 
     <script>
         document.getElementById('generate-question-btn').addEventListener('click', async function () {
+            const spinner = document.getElementById('loading-spinner');
+            const card = document.getElementById('question-display');
+
             try {
+                // Show loading spinner
+                spinner.style.display = 'block';
+                card.style.display = 'none'; // Ensure card is hidden while loading
+
                 // Fetch the question JSON from the backend
                 const response = await fetch('/generate-question');
                 if (!response.ok) {
@@ -131,13 +164,15 @@
                 document.getElementById('extra-answer-info').textContent = data.extra_answer_information;
 
                 // Show the question card
-                const card = document.getElementById('question-display');
-                card.style.display = 'block'; // Make the card visible
+                card.style.display = 'block';
                 card.classList.remove('flip'); // Ensure the card starts unflipped
 
             } catch (error) {
                 console.error('Error fetching question:', error);
                 alert('Failed to generate question. Please try again.');
+            } finally {
+                // Hide loading spinner
+                spinner.style.display = 'none';
             }
         });
 

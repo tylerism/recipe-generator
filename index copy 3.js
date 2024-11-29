@@ -77,7 +77,7 @@ app.post('/generate-recipe', async (req, res) => {
         const name = recipe.name;
         const slug = slugify(recipe.name);
 
-        const image = await openai.images.generate({ model: "dall-e-3", prompt: 'Professional food photography of ' + name });
+        const image = await openai.images.generate({ model: "dall-e-3", prompt: name });
         recipe.image = image.data[0].url;
 
         console.log(recipe);
@@ -93,7 +93,7 @@ app.post('/generate-recipe', async (req, res) => {
             recipe.description,
             JSON.stringify(recipe.ingredients), // Store array as JSON
             JSON.stringify(recipe.instructions), // Store array as JSON
-            '#',
+            recipe.image,
             slug
         ];
 
