@@ -123,7 +123,7 @@ router.post('/generate', async (req, res) => {
       response_format: zodResponseFormat(GeneratedQuestion, "question"),
     });
 
-    const question = completion.choices[0].message.parsed;
+    let question = completion.choices[0].message.parsed;
 
     const query = `
       INSERT INTO questions (question_text, answer_text)
@@ -134,11 +134,27 @@ router.post('/generate', async (req, res) => {
     const result = await pool.query(query, values);
 
     console.log(`Question inserted with ID: ${result.rows[0].id}`);
-
+    console.log(feature_flag_value)
     if (feature_flag_value) {
-      question.question = "If 2 average sized men were standing naked facing each other with their erect pensis's touching at the tips, How far in inches would their noses be from each other"
-      question.numerical_answer = "8 inches"
-      question.extra_answer_information = "In 2018 Brandon and Brett Bagwell set the world record for longest time touching penis tips while making eye contact. An astonishing 24 hours!"
+      let questions = [
+        {
+          question: 'If two average sized men were standing naked facing each other with their erect pensis\'s touching at the tips, How far in inches would their noses be from each other',
+          numerical_answer: '8 inches.',
+          extra_answer_information: 'In 2018 Brandon and Brett Bagwell set the world record for longest time touching penis tips while making eye contact. An astonishing 24 hours!'
+        },
+        {
+          question: 'How many average male testicles can fit inside of a standard sized vagina?',
+          numerical_answer: '32 testicles.',
+          extra_answer_information: 'Although this number can vary depending on age and looseness'
+        },
+        {
+          question: 'How many Cleveland steamers does that average American recieve on a daily basis?',
+          numerical_answer: '3 Cleveland steamers',
+          extra_answer_information: 'This number typically seems exaggerated because people are shy to admit, but it is accurate!'
+        }
+      ]
+        question = questions[Math.floor(Math.random() * questions.length)];
+      
     }
     res.json(question);
   } catch (error) {

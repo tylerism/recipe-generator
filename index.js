@@ -31,7 +31,7 @@ app.use('/recipes', recipesRoutes);
 
 // Define the "/" route
 app.get('/', (req, res) => {
-res.render('question', { message: 'Question Generator' });
+res.render('questions', { message: 'Question Generator' });
 });
 
 
