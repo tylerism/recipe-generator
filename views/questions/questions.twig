@@ -1,0 +1,26 @@
+{% extends "layout.twig" %}
+
+{% block title %}All Questions{% endblock %}
+
+{% block header %}
+    All Questions
+{% endblock %}
+
+{% block header_description %}
+    <p>Explore our collection of delicious AI-generated questions!</p>
+{% endblock %}
+
+{% block content %}
+    <div class="question-list">
+        {% for question in questions %}
+            <div class="question">
+                <a href="/questions/{{ question.id }}" class="question-link">
+                    <div class="question-details">
+                        <h2 class="question-question">{{ question.question_text }}</h2>
+                        <p class="question-answer">{{ question.answer_text }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
