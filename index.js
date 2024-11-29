@@ -55,6 +55,9 @@ const GeneratedRecipe = z.object({
 });
 
 // Define the "/" route
+app.get('/', (req, res) => {
+    res.render('question', { message: 'Question Generator' });
+  });
 app.get('/question', (req, res) => {
   res.render('question', { message: 'Question Generator' });
 });
