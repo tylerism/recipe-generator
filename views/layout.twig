@@ -87,7 +87,7 @@
 
             const stopLoading = await showLoading();
 
-            axios.post('/generate-recipe', { prompt: recipePrompt })
+            axios.post('/recipes/generate', { prompt: recipePrompt })
                 .then(response => {
                     const recipe = response.data;
                     recipeContainer.innerHTML = `

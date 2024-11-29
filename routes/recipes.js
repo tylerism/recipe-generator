@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/generate', (req, res) => {
-  res.render('recipes/generate', { message: 'Generate a new recipe' });
+  res.render('recipes/flavor', { message: 'Generate a new recipe' });
 });
 
 router.post('/generate', async (req, res) => {
