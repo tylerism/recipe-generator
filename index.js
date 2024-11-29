@@ -74,7 +74,7 @@ app.get('/generate-question', async (req, res) => {
         const completion = await openai.beta.chat.completions.parse({
             model: "gpt-4o-2024-08-06",
             messages: [
-                { role: "system", content: "You are a question generator. When I ask you give me questions that have numerical answer. The answer can be numerical such as a specific number or a percentage. Do not repeat questions. The questions should be fun and silly questions that people would not know the exact answer to." },
+                { role: "system", content: "You are a question generator. When I ask you give me questions that have numerical answer. The answer can be numerical such as a specific number or a percentage. Do not repeat questions. The questions should be related to popular culture that people would not know the exact answer to." },
                 { role: "user", content: "Give me a new question" }
             ],
             response_format: zodResponseFormat(GeneratedQuestion, "question"),
