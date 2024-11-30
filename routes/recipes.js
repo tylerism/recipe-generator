@@ -63,6 +63,10 @@ router.post('/generate', async (req, res) => {
     const recipe = completion.choices[0].message.parsed;
     recipe.slug = slugify(recipe.name);
 
+    const image = await openai.images.generate({ model: "dall-e-3", prompt: 'Professional food photography of ' + recipe.name });
+    recipe.image = image.data[0].url;
+
+
     const query = `
       INSERT INTO recipes (name, description, ingredients, instructions, image, slug)
       VALUES ($1, $2, $3, $4, $5, $6)
