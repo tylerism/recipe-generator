@@ -55,6 +55,76 @@ const questions = [
   }
 ];
 
+router.get('/', async (req, res) => {
+  try {
+    const query = 'SELECT question_text, answer_text FROM questions ORDER BY id DESC';
+    const result = await pool.query(query);
+    res.render('questions/index', { questions: result.rows });
+  } catch (error) {
+    console.error('Error retrieving questions:', error);
+    res.status(500).send('Failed to retrieve questions.');
+  }
+});
+
+router.get('/generate', (req, res) => {
+  res.render('questions/generate', { message: 'Generate a new question' });
+});
+
+router.get('/goofy', (req, res) => {
+  res.render('questions/goofy', { message: 'GOOFY' });
+});
+
+router.get('/goofy_questions', async (req, res) => {
+  try {
+    // Query the database for the feature flag
+    const query = 'SELECT * FROM feature_flags WHERE name = $1';
+    const values = ['goofy_questions'];
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Feature flag not found' });
+    }
+
+    // Return the feature flag as JSON
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching feature flag:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+router.post('/goofy', async (req, res) => {
+  try {
+    // Fetch the current value of the feature flag
+    const fetchQuery = 'SELECT value FROM feature_flags WHERE name = $1';
+    const { rows } = await pool.query(fetchQuery, ['goofy_questions']);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Feature flag not found' });
+    }
+
+    const currentValue = rows[0].value;
+
+    // Toggle the value
+    const newValue = !currentValue;
+
+    // Update the feature flag in the database
+    const updateQuery = 'UPDATE feature_flags SET value = $1 WHERE name = $2 RETURNING value';
+    const updateResult = await pool.query(updateQuery, [newValue, 'goofy_questions']);
+
+    // Return the updated value
+    res.json({ name: 'goofy_questions', value: updateResult.rows[0].value });
+  } catch (error) {
+    console.error('Error toggling feature flag:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 router.post('/generate', async (req, res) => {
   try {
     // Check feature flag
@@ -104,6 +174,7 @@ router.post('/generate', async (req, res) => {
       }
 
       // Return the question without inserting it into the database
+      await sleep(2000);
       return res.json(question);
     } else {
       // Generate a question using OpenAI if feature flag is not enabled
